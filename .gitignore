@@ -1,0 +1,9 @@
+# Compiled binary from `make build` / `go build`
+/gcloudenv
+
+# GoReleaser output
+/dist/
+
+# Test coverage
+*.out
+coverage.out

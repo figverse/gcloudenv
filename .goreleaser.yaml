@@ -1,0 +1,36 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: gcloudenv
+    main: .
+    binary: gcloudenv
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X github.com/figverse/gcloudenv/cmd.version={{.Version}}
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+# Uncomment and point at your tap repo to publish a Homebrew formula on release.
+# brews:
+#   - repository:
+#       owner: figverse
+#       name: homebrew-tap
+#     homepage: "https://github.com/figverse/gcloudenv"
+#     description: "Manage gcloud configurations like nvm/rbenv"
+#     install: |
+#       bin.install "gcloudenv"
+#     caveats: |
+#       Add the shell integration to your rc file:
+#         eval "$(gcloudenv init zsh)"
