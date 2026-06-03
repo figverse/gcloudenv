@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/figverse/gcloudenv/compare/v1.1.0...v1.2.0) (2026-06-03)
+
+
+### Features
+
+* offer to add .gcloudenv to .gitignore ([#11](https://github.com/figverse/gcloudenv/issues/11)) ([bd19772](https://github.com/figverse/gcloudenv/commit/bd19772b44f2d9d516938217c59a20b691f5696b))
+
 ## [1.1.0](https://github.com/figverse/gcloudenv/compare/v1.0.0...v1.1.0) (2026-06-03)
 
 
