@@ -1,4 +1,6 @@
-# golangci-lint configuration. Run with: golangci-lint run
+# golangci-lint configuration (v2 schema). Run with: golangci-lint run
+version: "2"
+
 run:
   timeout: 3m
 
@@ -9,19 +11,21 @@ linters:
     - ineffassign
     - staticcheck
     - unused
-    - gofmt
-    - goimports
     - misspell
     - revive
     - unconvert
+  exclusions:
+    rules:
+      # Test stubs and helpers can be looser.
+      - path: _test\.go
+        linters:
+          - errcheck
 
-linters-settings:
-  goimports:
-    local-prefixes: github.com/figverse/gcloudenv
-
-issues:
-  exclude-rules:
-    # Test stubs and helpers can be looser.
-    - path: _test\.go
-      linters:
-        - errcheck
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/figverse/gcloudenv
