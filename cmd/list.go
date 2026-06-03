@@ -24,7 +24,7 @@ var listCmd = &cobra.Command{
 		envActive := gcloud.ActiveFromEnv()
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
-		fmt.Fprintln(w, "\tPROFILE\tACCOUNT\tPROJECT")
+		_, _ = fmt.Fprintln(w, "\tPROFILE\tACCOUNT\tPROJECT")
 		for _, c := range configs {
 			active := c.IsActive
 			if envActive != "" {
@@ -34,7 +34,7 @@ var listCmd = &cobra.Command{
 			if active {
 				marker = "*"
 			}
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", marker, c.Name, dash(c.Account()), dash(c.Project()))
+			_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", marker, c.Name, dash(c.Account()), dash(c.Project()))
 		}
 		return w.Flush()
 	},

@@ -1,3 +1,4 @@
+// Package cmd implements the gcloudenv CLI commands built on top of cobra.
 package cmd
 
 import (
@@ -28,7 +29,7 @@ var rootCmd = &cobra.Command{
 // Execute runs the root command and exits non-zero on error.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, "gcloudenv:", err)
+		_, _ = fmt.Fprintln(os.Stderr, "gcloudenv:", err)
 		os.Exit(1)
 	}
 }

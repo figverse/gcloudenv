@@ -50,7 +50,7 @@ var exportCmd = &cobra.Command{
 			return fmt.Errorf("no such configuration %q", res.Name)
 		}
 
-		fmt.Fprintln(cmd.OutOrStdout(), shell.ExportStatement(exportShell, gcloud.EnvActiveConfig, res.Name))
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), shell.ExportStatement(exportShell, gcloud.EnvActiveConfig, res.Name))
 		return nil
 	},
 }
