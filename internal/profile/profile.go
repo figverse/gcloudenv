@@ -5,10 +5,14 @@
 package profile
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+// gitignoreName is the conventional ignore-file name.
+const gitignoreName = ".gitignore"
 
 // LocalFile is the per-directory marker, analogous to .nvmrc / .ruby-version.
 const LocalFile = ".gcloudenv"
@@ -73,4 +77,86 @@ func findLocal(dir string) (name, path string) {
 func WriteLocal(dir, name string) (string, error) {
 	path := filepath.Join(dir, LocalFile)
 	return path, os.WriteFile(path, []byte(name+"\n"), 0o644)
+}
+
+// LocalExists reports whether dir already contains a .gcloudenv file.
+func LocalExists(dir string) bool {
+	_, err := os.Stat(filepath.Join(dir, LocalFile))
+	return err == nil
+}
+
+// InGitRepo reports whether dir is inside a git working tree, by walking up
+// looking for a .git entry (a directory for normal repos, a file for worktrees
+// and submodules).
+func InGitRepo(dir string) bool {
+	dir, err := filepath.Abs(dir)
+	if err != nil {
+		return false
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
+			return true
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return false
+		}
+		dir = parent
+	}
+}
+
+// GitignoreHasLocal reports whether dir's .gitignore already lists the
+// .gcloudenv pattern. A missing .gitignore counts as "not listed".
+func GitignoreHasLocal(dir string) (bool, error) {
+	data, err := os.ReadFile(filepath.Join(dir, gitignoreName))
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if gitignoreEntryMatches(line) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+// gitignoreEntryMatches reports whether a single .gitignore line targets the
+// local file, ignoring comments, blank lines, and common anchoring syntax
+// (leading "/" or "./", trailing "/").
+func gitignoreEntryMatches(line string) bool {
+	line = strings.TrimSpace(line)
+	if line == "" || strings.HasPrefix(line, "#") {
+		return false
+	}
+	line = strings.TrimPrefix(line, "/")
+	line = strings.TrimPrefix(line, "./")
+	line = strings.TrimSuffix(line, "/")
+	return line == LocalFile
+}
+
+// AddToGitignore appends the .gcloudenv pattern to dir's .gitignore, creating
+// the file if it does not exist, and returns the .gitignore path.
+func AddToGitignore(dir string) (string, error) {
+	path := filepath.Join(dir, gitignoreName)
+
+	// Ensure we start the new entry on its own line when the existing file
+	// doesn't end in a newline.
+	prefix := ""
+	if data, err := os.ReadFile(path); err == nil && len(data) > 0 && !strings.HasSuffix(string(data), "\n") {
+		prefix = "\n"
+	}
+
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		return path, err
+	}
+	defer func() { _ = f.Close() }()
+
+	if _, err := f.WriteString(prefix + LocalFile + "\n"); err != nil {
+		return path, err
+	}
+	return path, nil
 }
