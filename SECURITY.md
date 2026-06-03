@@ -10,8 +10,7 @@ Please make sure you're on the most recent release before reporting.
 Please **do not** open a public issue for security problems.
 
 Report privately via GitHub's
-[private vulnerability reporting](https://github.com/figverse/gcloudenv/security/advisories/new),
-or email the maintainers at **security@figverse.com**.
+[private vulnerability reporting](https://github.com/figverse/gcloudenv/security/advisories/new).
 
 Include, where possible:
 

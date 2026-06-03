@@ -7,3 +7,4 @@
 # Test coverage
 *.out
 coverage.out
+.gcloudenv
