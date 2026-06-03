@@ -1,23 +1,16 @@
 # Changelog
 
-All notable changes to this project are documented here. The format is based on
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
-adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 1.0.0 (2026-06-03)
 
-## [Unreleased]
 
-### Added
+### Features
 
-- Initial release of gcloudenv.
-- `list` / `ls` — list gcloud profiles, marking the active one.
-- `use <profile>` — switch the active profile per-shell (via the shim) or
-  globally with `--global`.
-- `current` / `status` — show the active profile, its account/project, and
-  where the selection came from.
-- `create <profile>` — create a profile, optionally seeding `--account` and
-  `--project`.
-- `local <profile>` — pin a profile to a directory via a `.gcloudenv` file.
-- `init bash|zsh|fish` — print the shell integration snippet.
-- Directory auto-switching on `cd` when a `.gcloudenv` file is present.
+* initial commit ([766ff6c](https://github.com/figverse/gcloudenv/commit/766ff6c748249b6de2c951d2e447a054d550ec84))
+* use release-please action for release management ([#6](https://github.com/figverse/gcloudenv/issues/6)) ([5fc7c76](https://github.com/figverse/gcloudenv/commit/5fc7c76483eb50732d111d00cf6501deb5f070f8))
 
-[Unreleased]: https://github.com/figverse/gcloudenv/commits/main
+## Changelog
+
+This file is maintained automatically by
+[release-please](https://github.com/googleapis/release-please) from
+[Conventional Commits](https://www.conventionalcommits.org/). Do not edit it by
+hand — write good commit messages instead.

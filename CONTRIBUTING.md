@@ -44,7 +44,8 @@ make check      # fmt-check + vet + lint + test
 - **Tests:** add or update tests for any behaviour change. Shell-shim changes
   should be smoke-tested in a real shell and described in the PR.
 - **Commits:** we follow [Conventional Commits](https://www.conventionalcommits.org/)
-  (`feat:`, `fix:`, `docs:`, `chore:`, …). This keeps the changelog tidy.
+  (`feat:`, `fix:`, `docs:`, `chore:`, …). This is **required** — releases are
+  automated from commit messages (see below).
 
 ## Pull request expectations
 
@@ -57,6 +58,20 @@ make check      # fmt-check + vet + lint + test
 Use the [issue templates](https://github.com/figverse/gcloudenv/issues/new/choose).
 For anything security-related, please follow [SECURITY.md](SECURITY.md) instead
 of opening a public issue.
+
+## Releases
+
+Releases are automated with
+[release-please](https://github.com/googleapis/release-please). You don't tag
+or edit the changelog by hand:
+
+1. Conventional Commits merged to `main` drive the next version
+   (`fix:` → patch, `feat:` → minor; breaking changes stay in the `0.x` line
+   until 1.0).
+2. release-please keeps an open **release PR** that bumps the version and
+   updates `CHANGELOG.md`.
+3. Merging that PR creates the `vX.Y.Z` tag and GitHub Release; GoReleaser then
+   attaches the cross-platform binaries and checksums.
 
 ## Code of Conduct
 
