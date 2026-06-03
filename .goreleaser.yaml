@@ -22,6 +22,14 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+# release-please owns the changelog and creates the GitHub Release; GoReleaser
+# only attaches the built artifacts to that existing release.
+changelog:
+  disable: true
+
+release:
+  mode: keep-existing
+
 # Uncomment and point at your tap repo to publish a Homebrew formula on release.
 # brews:
 #   - repository:
