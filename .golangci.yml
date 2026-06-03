@@ -1,7 +1,6 @@
 # golangci-lint configuration. Run with: golangci-lint run
 run:
   timeout: 3m
-  go: '1.24'
 
 linters:
   enable:
