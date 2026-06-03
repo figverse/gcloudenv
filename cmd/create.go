@@ -37,7 +37,7 @@ var createCmd = &cobra.Command{
 				return err
 			}
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "Created profile %q. Switch to it with: gcloudenv use %s\n", name, name)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created profile %q. Switch to it with: gcloudenv use %s\n", name, name)
 		return nil
 	},
 }

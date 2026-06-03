@@ -31,7 +31,7 @@ var localCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "Wrote %s -> %s\n", path, name)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Wrote %s -> %s\n", path, name)
 		return nil
 	},
 }

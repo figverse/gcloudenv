@@ -31,13 +31,13 @@ source the shim for per-shell switching.`,
 			if err := runner.Activate(name); err != nil {
 				return err
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Set global default profile to %q\n", name)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Set global default profile to %q\n", name)
 			return nil
 		}
 
 		// Reaching here means the shim isn't installed (otherwise `use` is a
 		// shell function that never calls this branch).
-		fmt.Fprintf(cmd.OutOrStdout(),
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(),
 			"Per-shell switching needs the shell integration. Either:\n"+
 				"  eval \"$(gcloudenv export %s)\"   # this shell, now\n"+
 				"  gcloudenv use %s --global         # change the gcloud default\n"+

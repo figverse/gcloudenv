@@ -33,7 +33,7 @@ var currentCmd = &cobra.Command{
 			}
 		}
 		if name == "" {
-			fmt.Fprintln(cmd.OutOrStdout(), "No active profile.")
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No active profile.")
 			return nil
 		}
 
@@ -42,11 +42,11 @@ var currentCmd = &cobra.Command{
 			return err
 		}
 		out := cmd.OutOrStdout()
-		fmt.Fprintf(out, "Profile: %s (%s)\n", c.Name, source)
-		fmt.Fprintf(out, "Account: %s\n", dash(c.Account()))
-		fmt.Fprintf(out, "Project: %s\n", dash(c.Project()))
+		_, _ = fmt.Fprintf(out, "Profile: %s (%s)\n", c.Name, source)
+		_, _ = fmt.Fprintf(out, "Account: %s\n", dash(c.Account()))
+		_, _ = fmt.Fprintf(out, "Project: %s\n", dash(c.Project()))
 		if res.Source == profile.SourceLocal {
-			fmt.Fprintf(out, "Source:  %s\n", res.Path)
+			_, _ = fmt.Fprintf(out, "Source:  %s\n", res.Path)
 		}
 		return nil
 	},

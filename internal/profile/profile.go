@@ -16,6 +16,7 @@ const LocalFile = ".gcloudenv"
 // Source describes where a resolved profile name came from, for display.
 type Source string
 
+// The possible Source values, in resolution-precedence order.
 const (
 	SourceFlag  Source = "flag"
 	SourceLocal Source = "local file"
