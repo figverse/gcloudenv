@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/figverse/gcloudenv/compare/v1.0.0...v1.1.0) (2026-06-03)
+
+
+### Features
+
+* initial commit ([766ff6c](https://github.com/figverse/gcloudenv/commit/766ff6c748249b6de2c951d2e447a054d550ec84))
+* use release-please action for release management ([#6](https://github.com/figverse/gcloudenv/issues/6)) ([5fc7c76](https://github.com/figverse/gcloudenv/commit/5fc7c76483eb50732d111d00cf6501deb5f070f8))
+
 ## 1.0.0 (2026-06-03)
 
 
