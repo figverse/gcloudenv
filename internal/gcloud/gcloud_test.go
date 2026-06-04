@@ -57,3 +57,49 @@ func TestExists(t *testing.T) {
 		t.Fatal("nope should not exist")
 	}
 }
+
+func TestConfigDirHonoursEnv(t *testing.T) {
+	t.Setenv(EnvConfigDir, "/tmp/my-gcloud")
+	got, err := ConfigDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "/tmp/my-gcloud" {
+		t.Fatalf("ConfigDir = %q, want /tmp/my-gcloud", got)
+	}
+}
+
+func TestProfileADCPath(t *testing.T) {
+	t.Setenv(EnvConfigDir, "/tmp/my-gcloud")
+	got, err := ProfileADCPath("staging")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join("/tmp/my-gcloud", "profiles", "staging", ADCFileName)
+	if got != want {
+		t.Fatalf("ProfileADCPath = %q, want %q", got, want)
+	}
+}
+
+func TestHasProfileADC(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv(EnvConfigDir, dir)
+
+	if HasProfileADC("staging") {
+		t.Fatal("staging should not have ADC yet")
+	}
+
+	path, err := ProfileADCPath("staging")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte("{}"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if !HasProfileADC("staging") {
+		t.Fatal("staging should have ADC after writing the file")
+	}
+}

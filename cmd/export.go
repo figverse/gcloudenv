@@ -50,7 +50,17 @@ var exportCmd = &cobra.Command{
 			return fmt.Errorf("no such configuration %q", res.Name)
 		}
 
-		_, _ = fmt.Fprintln(cmd.OutOrStdout(), shell.ExportStatement(exportShell, gcloud.EnvActiveConfig, res.Name))
+		out := cmd.OutOrStdout()
+		_, _ = fmt.Fprintln(out, shell.ExportStatement(exportShell, gcloud.EnvActiveConfig, res.Name))
+
+		// Isolate ADC when the profile has its own credentials file; otherwise
+		// clear the variable so a previous profile's ADC never leaks into this
+		// one (falling back to gcloud's shared well-known ADC).
+		if path, err := gcloud.ProfileADCPath(res.Name); err == nil && gcloud.HasProfileADC(res.Name) {
+			_, _ = fmt.Fprintln(out, shell.ExportStatement(exportShell, gcloud.EnvADC, path))
+		} else {
+			_, _ = fmt.Fprintln(out, shell.UnsetStatement(exportShell, gcloud.EnvADC))
+		}
 		return nil
 	},
 }

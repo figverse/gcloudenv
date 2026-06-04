@@ -53,6 +53,8 @@ gcloudenv current              # show active profile + account/project + source
 gcloudenv create staging \     # create a profile and seed it
     --account me@x.com --project my-stg
 gcloudenv local staging        # write .gcloudenv so this dir auto-switches
+gcloudenv adc login staging    # give this profile its own ADC for SDKs
+gcloudenv adc status           # show which profiles have isolated ADC
 ```
 
 ### Directory auto-switch
@@ -66,13 +68,25 @@ to that profile automatically. Resolution precedence, highest first:
 3. `$CLOUDSDK_ACTIVE_CONFIG_NAME` already in the environment
 4. gcloud's own global default
 
-## Known limitation
+### Per-profile ADC
 
-gcloud configurations share a **single** application-default-credentials (ADC)
-file — switching configurations does not isolate ADC. If you need per-profile
-ADC for local development against multiple identities, that requires the
-isolated-`CLOUDSDK_CONFIG` model, which is not yet implemented. The `gcloud`
-interop is isolated behind `internal/gcloud` to make adding it straightforward.
+gcloud configurations isolate the **CLI's** account and project, but client
+libraries (the Go/Python/etc. SDKs, Terraform, ...) read
+[Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials)
+from a single shared file — so by default they can't tell profiles apart.
+
+`gcloudenv adc login <profile>` gives a profile its own ADC. It runs
+`gcloud auth application-default login` in isolation and stores the result at
+`<gcloud-config>/profiles/<profile>/application_default_credentials.json`
+(`<gcloud-config>` is `$CLOUDSDK_CONFIG`, else `~/.config/gcloud`), creating the
+directory if needed. The shared well-known ADC file is never touched.
+
+Once stored, switching to that profile also exports
+`GOOGLE_APPLICATION_CREDENTIALS`, which client libraries honor ahead of the
+well-known file. Switching to a profile **without** stored ADC unsets the
+variable, so SDKs fall back to gcloud's shared ADC rather than leaking the
+previous profile's identity — i.e. once you adopt per-profile ADC, gcloudenv
+owns `GOOGLE_APPLICATION_CREDENTIALS` in shells where it switches profiles.
 
 ## Develop
 
