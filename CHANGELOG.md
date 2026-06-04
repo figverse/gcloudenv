@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/figverse/gcloudenv/compare/v1.2.0...v1.3.0) (2026-06-04)
+
+
+### Features
+
+* support profile-scope ADC ([#16](https://github.com/figverse/gcloudenv/issues/16)) ([c60a34c](https://github.com/figverse/gcloudenv/commit/c60a34c1f43c1a967cd6624dbd4c0f211e5f6be4))
+
+
+### Bug Fixes
+
+* init cmd bug ([#14](https://github.com/figverse/gcloudenv/issues/14)) ([f3ac184](https://github.com/figverse/gcloudenv/commit/f3ac184a3122d8867109d8ba52bc4c3adfcc00a3))
+
 ## [1.2.0](https://github.com/figverse/gcloudenv/compare/v1.1.0...v1.2.0) (2026-06-03)
 
 
