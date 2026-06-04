@@ -40,3 +40,12 @@ func ExportStatement(shellName, key, value string) string {
 	}
 	return fmt.Sprintf("export %s=%q", key, value)
 }
+
+// UnsetStatement renders a statement that removes VAR from the environment.
+// shellName "fish" uses `set -e`; everything else uses POSIX `unset`.
+func UnsetStatement(shellName, key string) string {
+	if shellName == "fish" {
+		return fmt.Sprintf("set -e %s", key)
+	}
+	return fmt.Sprintf("unset %s", key)
+}

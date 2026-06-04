@@ -45,6 +45,12 @@ var currentCmd = &cobra.Command{
 		_, _ = fmt.Fprintf(out, "Profile: %s (%s)\n", c.Name, source)
 		_, _ = fmt.Fprintf(out, "Account: %s\n", dash(c.Account()))
 		_, _ = fmt.Fprintf(out, "Project: %s\n", dash(c.Project()))
+		if gcloud.HasProfileADC(c.Name) {
+			path, _ := gcloud.ProfileADCPath(c.Name)
+			_, _ = fmt.Fprintf(out, "ADC:     %s\n", path)
+		} else {
+			_, _ = fmt.Fprintf(out, "ADC:     shared (run: gcloudenv adc login %s)\n", c.Name)
+		}
 		if res.Source == profile.SourceLocal {
 			_, _ = fmt.Fprintf(out, "Source:  %s\n", res.Path)
 		}

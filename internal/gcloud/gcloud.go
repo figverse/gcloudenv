@@ -7,8 +7,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -16,6 +19,18 @@ import (
 // for a single invocation. Exporting it in a shell is how we switch profiles
 // per-shell without mutating gcloud's global state.
 const EnvActiveConfig = "CLOUDSDK_ACTIVE_CONFIG_NAME"
+
+// EnvADC is the variable client libraries (the Go/Python/etc. SDKs, Terraform,
+// ...) read to locate Application Default Credentials, ahead of gcloud's
+// well-known file. Pointing it at a per-profile file is how we isolate ADC,
+// which gcloud configurations alone do not.
+const EnvADC = "GOOGLE_APPLICATION_CREDENTIALS"
+
+// EnvConfigDir overrides gcloud's configuration directory for an invocation.
+const EnvConfigDir = "CLOUDSDK_CONFIG"
+
+// ADCFileName is gcloud's well-known Application Default Credentials filename.
+const ADCFileName = "application_default_credentials.json"
 
 // Runner executes gcloud commands. The zero value runs the "gcloud" binary
 // found on PATH.
@@ -123,3 +138,120 @@ func (r Runner) SetProperty(config, key, value string) error {
 
 // ActiveFromEnv returns the profile selected via the environment, if any.
 func ActiveFromEnv() string { return os.Getenv(EnvActiveConfig) }
+
+// ConfigDir returns gcloud's active configuration directory, mirroring gcloud's
+// own resolution: $CLOUDSDK_CONFIG if set, else %APPDATA%\gcloud on Windows,
+// else ~/.config/gcloud.
+func ConfigDir() (string, error) {
+	if dir := os.Getenv(EnvConfigDir); dir != "" {
+		return dir, nil
+	}
+	if runtime.GOOS == "windows" {
+		if appData := os.Getenv("APPDATA"); appData != "" {
+			return filepath.Join(appData, "gcloud"), nil
+		}
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, ".config", "gcloud"), nil
+}
+
+// ProfileADCDir returns the per-profile directory under the gcloud config dir
+// that holds an isolated ADC file: <config>/profiles/<name>.
+func ProfileADCDir(name string) (string, error) {
+	dir, err := ConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "profiles", name), nil
+}
+
+// ProfileADCPath returns the per-profile ADC file path:
+// <config>/profiles/<name>/application_default_credentials.json.
+func ProfileADCPath(name string) (string, error) {
+	dir, err := ProfileADCDir(name)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, ADCFileName), nil
+}
+
+// HasProfileADC reports whether a per-profile ADC file exists for name.
+func HasProfileADC(name string) bool {
+	path, err := ProfileADCPath(name)
+	if err != nil {
+		return false
+	}
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
+}
+
+// LoginProfileADC runs the interactive `gcloud auth application-default login`
+// isolated to a throwaway config dir, then installs the resulting credentials
+// at the per-profile ADC path, creating <config>/profiles/<name> if needed.
+// Isolating the login keeps it from clobbering gcloud's shared well-known ADC
+// file or other profiles. It returns the destination path on success.
+func (r Runner) LoginProfileADC(name string) (string, error) {
+	dest, err := ProfileADCPath(name)
+	if err != nil {
+		return "", err
+	}
+	destDir := filepath.Dir(dest)
+	if err := os.MkdirAll(destDir, 0o700); err != nil {
+		return "", err
+	}
+
+	// Run the login against a temp config dir on the same filesystem as the
+	// destination so the credential it writes can be moved with a plain rename
+	// and never touches the user's real gcloud home.
+	tmp, err := os.MkdirTemp(destDir, ".adc-login-")
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = os.RemoveAll(tmp) }()
+
+	cmd := exec.Command(r.bin(), "auth", "application-default", "login")
+	cmd.Env = append(os.Environ(), EnvConfigDir+"="+tmp)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return "", fmt.Errorf("gcloud auth application-default login: %w", err)
+	}
+
+	src := filepath.Join(tmp, ADCFileName)
+	if _, err := os.Stat(src); err != nil {
+		return "", fmt.Errorf("login did not produce %s", ADCFileName)
+	}
+	if err := moveFile(src, dest); err != nil {
+		return "", err
+	}
+	return dest, nil
+}
+
+// moveFile renames src to dest, falling back to a copy when the two live on
+// different filesystems.
+func moveFile(src, dest string) error {
+	if err := os.Rename(src, dest); err == nil {
+		return nil
+	}
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = in.Close() }()
+	out, err := os.OpenFile(dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o600)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		_ = out.Close()
+		return err
+	}
+	if err := out.Close(); err != nil {
+		return err
+	}
+	return os.Remove(src)
+}
