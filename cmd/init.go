@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		cmd.Print(snippet)
+		_, _ = fmt.Fprint(cmd.OutOrStdout(), snippet)
 		return nil
 	},
 }
