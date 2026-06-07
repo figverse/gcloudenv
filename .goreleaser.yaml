@@ -30,15 +30,19 @@ changelog:
 release:
   mode: keep-existing
 
-# Uncomment and point at your tap repo to publish a Homebrew formula on release.
-# brews:
-#   - repository:
-#       owner: figverse
-#       name: homebrew-tap
-#     homepage: "https://github.com/figverse/gcloudenv"
-#     description: "Manage gcloud configurations like nvm/rbenv"
-#     install: |
-#       bin.install "gcloudenv"
-#     caveats: |
-#       Add the shell integration to your rc file:
-#         eval "$(gcloudenv init zsh)"
+brews:
+  - repository:
+      owner: figverse
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: "https://github.com/figverse/gcloudenv"
+    description: "Manage gcloud configurations like nvm/rbenv"
+    license: "MIT"
+    install: |
+      bin.install "gcloudenv"
+      system "/usr/bin/xattr", "-cr", "#{bin}/gcloudenv" if OS.mac?
+    test: |
+      system "#{bin}/gcloudenv", "--version"
+    caveats: |
+      Add the shell integration to your rc file:
+        eval "$(gcloudenv init zsh)"
