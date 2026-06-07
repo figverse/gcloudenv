@@ -46,7 +46,4 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # PAT with write access to figverse/homebrew-tap, used by GoReleaser
-          # to publish the Homebrew formula. Falls back to GITHUB_TOKEN so the
-          # build still succeeds if the secret isn't set yet.
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
