@@ -6,7 +6,7 @@ request.
 
 ## Getting started
 
-You'll need [Go](https://go.dev/dl/) 1.22 or newer and the `gcloud` CLI
+You'll need [Go](https://go.dev/dl/) 1.26 or newer and the `gcloud` CLI
 installed for manual testing.
 
 ```sh
