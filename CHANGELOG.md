@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/figverse/gcloudenv/compare/v1.4.0...v1.4.1) (2026-06-07)
+
+
+### Bug Fixes
+
+* goreleaser version and add workflow_dispatch ([#19](https://github.com/figverse/gcloudenv/issues/19)) ([c310077](https://github.com/figverse/gcloudenv/commit/c310077d500bba525d72db012fd1301e7fdeea5e))
+
 ## [1.4.0](https://github.com/figverse/gcloudenv/compare/v1.3.0...v1.4.0) (2026-06-07)
 
 
