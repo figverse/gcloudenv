@@ -24,6 +24,12 @@ touched.
 
 ## Install
 
+With Homebrew:
+
+```sh
+brew install figverse/tap/gcloudenv
+```
+
 With Go:
 
 ```sh
