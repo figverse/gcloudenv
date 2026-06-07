@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/figverse/gcloudenv/compare/v1.3.0...v1.4.0) (2026-06-07)
+
+
+### Features
+
+* add homebrew support ([#17](https://github.com/figverse/gcloudenv/issues/17)) ([b8347bc](https://github.com/figverse/gcloudenv/commit/b8347bcf7ae7f14dcc2d28b60469181bc43ba033))
+
 ## [1.3.0](https://github.com/figverse/gcloudenv/compare/v1.2.0...v1.3.0) (2026-06-04)
 
 
