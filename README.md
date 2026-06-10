@@ -53,6 +53,7 @@ gcloudenv current              # show active profile + account/project + source
 gcloudenv create staging \     # create a profile and seed it
     --account me@x.com --project my-stg
 gcloudenv local staging        # write .gcloudenv so this dir auto-switches
+gcloudenv global staging       # set gcloudenv's user-level default (~/.gcloudenv/global)
 gcloudenv adc login staging    # give this profile its own ADC for SDKs
 gcloudenv adc status           # show which profiles have isolated ADC
 ```
@@ -66,7 +67,8 @@ to that profile automatically. Resolution precedence, highest first:
 1. explicit argument (`gcloudenv use X`)
 2. nearest `.gcloudenv` walking up from the cwd
 3. `$CLOUDSDK_ACTIVE_CONFIG_NAME` already in the environment
-4. gcloud's own global default
+4. `~/.gcloudenv/global` (set with `gcloudenv global X`)
+5. gcloud's own global default
 
 ### Per-profile ADC
 

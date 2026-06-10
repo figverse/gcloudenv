@@ -51,7 +51,7 @@ var currentCmd = &cobra.Command{
 		} else {
 			_, _ = fmt.Fprintf(out, "ADC:     shared (run: gcloudenv adc login %s)\n", c.Name)
 		}
-		if res.Source == profile.SourceLocal {
+		if res.Source == profile.SourceLocal || res.Source == profile.SourceGlobal {
 			_, _ = fmt.Fprintf(out, "Source:  %s\n", res.Path)
 		}
 		return nil
