@@ -17,15 +17,23 @@ const gitignoreName = ".gitignore"
 // LocalFile is the per-directory marker, analogous to .nvmrc / .ruby-version.
 const LocalFile = ".gcloudenv"
 
+// globalDir and globalFile locate the user-level default at ~/.gcloudenv/global,
+// analogous to nvm's default alias / rbenv's global version.
+const (
+	globalDir  = ".gcloudenv"
+	globalFile = "global"
+)
+
 // Source describes where a resolved profile name came from, for display.
 type Source string
 
 // The possible Source values, in resolution-precedence order.
 const (
-	SourceFlag  Source = "flag"
-	SourceLocal Source = "local file"
-	SourceEnv   Source = "environment"
-	SourceNone  Source = "none"
+	SourceFlag   Source = "flag"
+	SourceLocal  Source = "local file"
+	SourceEnv    Source = "environment"
+	SourceGlobal Source = "global file"
+	SourceNone   Source = "none"
 )
 
 // Resolution is the outcome of resolving the active profile.
@@ -38,8 +46,9 @@ type Resolution struct {
 
 // Resolve picks a profile name given an explicit flag value (may be empty),
 // the starting directory to search upward from, and the current environment.
-// It does not consult gcloud's own global default; callers fall back to that
-// when Source is SourceNone.
+// When none of those apply it consults gcloudenv's own user-level default
+// (~/.gcloudenv/global). It does not consult gcloud's own active configuration;
+// callers fall back to that when Source is SourceNone.
 func Resolve(flag, startDir, envValue string) Resolution {
 	if flag != "" {
 		return Resolution{Name: flag, Source: SourceFlag}
@@ -49,6 +58,9 @@ func Resolve(flag, startDir, envValue string) Resolution {
 	}
 	if envValue != "" {
 		return Resolution{Name: envValue, Source: SourceEnv}
+	}
+	if name, path := readGlobal(); name != "" {
+		return Resolution{Name: name, Source: SourceGlobal, Path: path}
 	}
 	return Resolution{Source: SourceNone}
 }
@@ -83,6 +95,42 @@ func WriteLocal(dir, name string) (string, error) {
 func LocalExists(dir string) bool {
 	_, err := os.Stat(filepath.Join(dir, LocalFile))
 	return err == nil
+}
+
+// GlobalPath returns the user-level default file path, ~/.gcloudenv/global.
+func GlobalPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, globalDir, globalFile), nil
+}
+
+// WriteGlobal records name as the user-level default profile, creating
+// ~/.gcloudenv if needed, and returns the file path it wrote.
+func WriteGlobal(name string) (string, error) {
+	path, err := GlobalPath()
+	if err != nil {
+		return "", err
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return "", err
+	}
+	return path, os.WriteFile(path, []byte(name+"\n"), 0o644)
+}
+
+// readGlobal returns the user-level default profile name and the path it was
+// read from, or empty strings when the file is absent or unreadable.
+func readGlobal() (name, path string) {
+	path, err := GlobalPath()
+	if err != nil {
+		return "", ""
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", ""
+	}
+	return strings.TrimSpace(string(data)), path
 }
 
 // InGitRepo reports whether dir is inside a git working tree, by walking up

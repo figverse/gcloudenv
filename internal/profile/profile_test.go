@@ -53,9 +53,38 @@ func TestResolveWalksUp(t *testing.T) {
 }
 
 func TestResolveNone(t *testing.T) {
+	t.Setenv("HOME", t.TempDir()) // a home with no global file
 	res := Resolve("", t.TempDir(), "")
 	if res.Source != SourceNone {
 		t.Fatalf("want SourceNone, got %q", res.Source)
+	}
+}
+
+func TestWriteGlobalAndResolve(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+
+	path, err := WriteGlobal("from-global")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := filepath.Join(home, ".gcloudenv", "global"); path != want {
+		t.Fatalf("WriteGlobal path = %q, want %q", path, want)
+	}
+
+	// With no flag, no local file, and no env, the global file is used.
+	res := Resolve("", t.TempDir(), "")
+	if res.Name != "from-global" || res.Source != SourceGlobal {
+		t.Fatalf("Resolve = {%q, %q}, want from-global/global", res.Name, res.Source)
+	}
+	if res.Path != path {
+		t.Fatalf("Resolve path = %q, want %q", res.Path, path)
+	}
+
+	// A per-shell selection (env) still beats the global default.
+	res = Resolve("", t.TempDir(), "from-env")
+	if res.Name != "from-env" || res.Source != SourceEnv {
+		t.Fatalf("Resolve = {%q, %q}, want from-env/environment", res.Name, res.Source)
 	}
 }
 
